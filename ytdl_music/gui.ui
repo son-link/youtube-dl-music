@@ -25,7 +25,10 @@
         <item>
          <widget class="QPushButton" name="addBtn">
           <property name="toolTip">
-           <string>Add Video or Playlist</string>
+           <string>Add Video/Playlist</string>
+          </property>
+          <property name="whatsThis">
+           <string notr="true"/>
           </property>
           <property name="text">
            <string/>
@@ -47,6 +50,12 @@
         </item>
         <item>
          <widget class="QPushButton" name="removeBtn">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Remove selected(s) tracks(s)</string>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -67,6 +76,12 @@
           <property name="enabled">
            <bool>false</bool>
           </property>
+          <property name="toolTip">
+           <string>Previous track</string>
+          </property>
+          <property name="whatsThis">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -81,6 +96,12 @@
         </item>
         <item>
          <widget class="QPushButton" name="playBtn">
+          <property name="toolTip">
+           <string>Play/Pause</string>
+          </property>
+          <property name="whatsThis">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -98,6 +119,12 @@
         </item>
         <item>
          <widget class="QPushButton" name="stopBtn">
+          <property name="toolTip">
+           <string>Stop</string>
+          </property>
+          <property name="whatsThis">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -118,6 +145,12 @@
           <property name="enabled">
            <bool>false</bool>
           </property>
+          <property name="toolTip">
+           <string>Next track</string>
+          </property>
+          <property name="whatsThis">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -132,8 +165,14 @@
         </item>
         <item>
          <widget class="QLabel" name="timeLabel">
+          <property name="toolTip">
+           <string notr="true"/>
+          </property>
+          <property name="whatsThis">
+           <string/>
+          </property>
           <property name="text">
-           <string>0:00:00 / 0:00:00</string>
+           <string notr="true">0:00:00 / 0:00:00</string>
           </property>
          </widget>
         </item>
@@ -173,7 +212,7 @@
          <enum>Qt::NoPen</enum>
         </property>
         <property name="columnCount">
-         <number>2</number>
+         <number>3</number>
         </property>
         <attribute name="horizontalHeaderCascadingSectionResizes">
          <bool>true</bool>
@@ -187,6 +226,7 @@
         <attribute name="verticalHeaderVisible">
          <bool>false</bool>
         </attribute>
+        <column/>
         <column/>
         <column/>
        </widget>

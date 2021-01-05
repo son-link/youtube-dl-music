@@ -18,11 +18,19 @@ from PyQt5.QtCore import (
     pyqtSignal,
     QThread,
     QVariant,
-    Qt
+    Qt,
+    QCoreApplication,
+    QTranslator,
+    QLocale
 )
 from PyQt5.QtGui import QIcon
 import youtube_dl
 from Ui_gui import Ui_MainWindow
+from os import path
+
+
+_translate = QCoreApplication.translate
+LOCAL_DIR = path.dirname(path.realpath(__file__))
 
 
 def ms_to_time(t):
@@ -49,6 +57,7 @@ class addVideos(QThread):
             'format': 'bestaudio',
             'ignoreerrors': True,
             'logger': MyLogger(parent),
+            'geo_bypass_country': 'ES'
         }
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -62,6 +71,7 @@ class addVideos(QThread):
                     for i in entry['formats']:
                         if i['format_id'] == '251':
                             trackData = {
+                                'channel': entry['uploader'],
                                 'title': entry['title'],
                                 'duration': entry['duration'],
                                 'cover': entry['thumbnails'][0]['url'],
@@ -72,6 +82,7 @@ class addVideos(QThread):
             for i in info['formats']:
                 if i['format_id'] == '251':
                     trackData = {
+                        'channel': info['uploader'],
                         'title': info['title'],
                         'duration': info['duration'],
                         'cover': info['thumbnails'][0]['url'],
@@ -93,7 +104,7 @@ class MyLogger(object):
         self.parent.statusBar().showMessage(msg)
 
     def warning(self, msg):
-        pass
+        print(msg)
 
     def error(self, msg):
         print(msg)
@@ -103,7 +114,7 @@ class YtdlMusic(QMainWindow, Ui_MainWindow):
     def __init__(self, *args, **kwargs):
         QMainWindow.__init__(self, *args, **kwargs)
         self.setupUi(self)
-        self.setWindowIcon(QIcon('ytdl-music.svg'))
+        self.setWindowIcon(QIcon(LOCAL_DIR + '/ytdl_music.svg'))
 
         self.player = QMediaPlayer()
         self.player.isSeekable()
@@ -126,9 +137,10 @@ class YtdlMusic(QMainWindow, Ui_MainWindow):
         self.prevBtn.clicked.connect(self.playList.previous)
         self.nextBtn.clicked.connect(self.playList.next)
 
-        self.playlistTable.setHorizontalHeaderLabels(['', 'Titulo'])
+        self.playlistTable.setHorizontalHeaderLabels(['', _translate('MainWindow', 'Channel'), _translate('MainWindow', 'Title')])
         header = self.playlistTable.horizontalHeader()
         header.setSectionResizeMode(1, QHeaderView.Stretch)
+        header.setSectionResizeMode(2, QHeaderView.Stretch)
 
     def setPosition(self, pos):
         self.player.setPosition(pos)
@@ -240,16 +252,17 @@ class YtdlMusic(QMainWindow, Ui_MainWindow):
             self.playlistTable.insertRow(totalTracks)
             self.playlistTable.setRowCount(totalTracks+1)
             self.playlistTable.setItem(pos, 0, QTableWidgetItem(''))
-            self.playlistTable.setItem(pos, 1, QTableWidgetItem(data['title']))
+            self.playlistTable.setItem(pos, 1, QTableWidgetItem(data['channel']))
+            self.playlistTable.setItem(pos, 2, QTableWidgetItem(data['title']))
             media = QMediaContent(QUrl(data['url']))
             self.playList.addMedia(media)
             if totalTracks > 1:
                 self.nextBtn.setEnabled(True)
-
-        self.statusBar().showMessage('')
+        else:
+            self.statusBar().showMessage('Total pistas: {0}'.format(self.playList.mediaCount()))
 
     def addDialog(self):
-        url, ok = QInputDialog.getText(self, 'Añadir vídeo/lista de reproducción', 'URL:')
+        url, ok = QInputDialog.getText(self, _translate('MainWindow', 'Add video/playlist'), 'URL:')
         if ok and url != '':
             self.addPCThread = addVideos(self, url)
             self.addPCThread.video.connect(self.insertTrack)
@@ -287,9 +300,16 @@ class YtdlMusic(QMainWindow, Ui_MainWindow):
         else:
             self.removeBtn.setEnabled(False)
 
+    def init(self):
+        app = QApplication([])
+        defaultLocale = QLocale.system().name()
+        if defaultLocale.startswith == 'es':
+            defaultLocale = 'es_ES'
 
-app = QApplication([])
-music = YtdlMusic()
-music.retranslateUi(music)
-music.show()
-app.exec_()
+        translator = QTranslator()
+        translator.load(LOCAL_DIR + "/locales/ytdl-music-" + defaultLocale + ".qm")
+        app.installTranslator(translator)
+        music = YtdlMusic()
+        music.retranslateUi(music)
+        music.show()
+        app.exec_()
